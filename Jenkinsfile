@@ -2,52 +2,54 @@ pipeline {
     agent any
 
     environment {
-        SONAR_URL = 'http://localhost:9000' // SonarQube URL
-        SONAR_AUTH_TOKEN = credentials('sonarqube-token') // Replace 'sonarqube-token' with your Jenkins credential ID
+        // Use the SonarQube server name configured in Jenkins
+        SONARQUBE_SERVER = 'SonarQube'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
+                // Checkout code from the Git repository
                 checkout scm
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
-                script {
-                    sh 'mvn clean test'
-                }
+                // Build the project using Maven
+                sh 'mvn clean install'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // Replace 'SonarQube' with your Jenkins SonarQube server name
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=jenkins-sonarqube-integration -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}'
+                // Use SonarQube environment
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    // Run SonarQube analysis
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
+                // Wait for SonarQube to complete analysis and check the quality gate
                 waitForQualityGate abortPipeline: true
-            }
-        }
-
-        stage('Package') {
-            steps {
-                sh 'mvn package'
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully!'
+        always {
+            echo 'Pipeline execution completed.'
         }
+
         failure {
-            echo 'Pipeline failed. Please check the logs.'
+            echo 'Pipeline failed. Check logs for details.'
+        }
+
+        success {
+            echo 'Pipeline executed successfully.'
         }
     }
 }
