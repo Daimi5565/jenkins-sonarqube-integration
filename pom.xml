@@ -19,7 +19,7 @@
         <!-- SonarQube properties -->
         <sonar.projectKey>my-sonarqube-demo</sonar.projectKey>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
-        <sonar.login>sqa_6283f58a3777783a71cfa979fa945f18559bb023</sonar.login>
+        <sonar.token>sqa_6283f58a3777783a71cfa979fa945f18559bb023</sonar.token>
     </properties>
 
     <dependencies>
